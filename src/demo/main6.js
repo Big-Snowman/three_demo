@@ -9,6 +9,15 @@ import * as dat from 'dat.gui'
 
 // 实例创建一个GUI
 const gui = new dat.GUI()
+// 纹理贴图加载进度
+const div = document.createElement('div')
+div.style.width = '200px'
+div.style.height = '200px'
+div.style.position = 'fixed'
+div.style.right = 0
+div.style.top = 0
+div.style.color = '#fff'
+document.body.appendChild(div)
 
 // 目标：灯光与阴影
 // 1、材质要满足能够对光照有反应
@@ -34,6 +43,7 @@ manager.onLoad = function ( ) {
 }
 manager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
 	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' )
+  div.innerHTML = itemsLoaded / itemsTotal === 1 ? '' : `纹理加载中----${parseInt((itemsLoaded / itemsTotal) * 100)}%`
 }
 manager.onError = function ( url ) {
 	console.log( 'There was an error loading ' + url )
@@ -78,9 +88,9 @@ directionalLight.shadow.radius = 18
 // 设置阴影贴图的分辨率（默认为512*512）
 directionalLight.shadow.mapSize.set(4096, 4096)
 
-// 设置平行光投射相机的属性（切记这必须在添加辅助线之前完成）
+// 设置平型关投射相机的属性
 directionalLight.shadow.camera.near = 0.5
-directionalLight.shadow.camera.far = 200
+directionalLight.shadow.camera.far = 500
 directionalLight.shadow.camera.top = 5
 directionalLight.shadow.camera.bottom = -5
 directionalLight.shadow.camera.left = -5
@@ -88,49 +98,8 @@ directionalLight.shadow.camera.right = 5
 
 scene.add(directionalLight)
 
-// 平行光光源辅助线
-const SpotLightHelper = new THREE.DirectionalLightHelper(directionalLight);
-scene.add(SpotLightHelper)
-
-
 gui.add(directionalLight.shadow.camera, 'near')
   .min(0)
-  .max(20)
-  .step(0.1)
-  .onChange(() => {
-    directionalLight.shadow.camera.updateProjectionMatrix()
-    SpotLightHelper.update()
-  })
-gui.add(directionalLight.shadow.camera, 'far')
-  .min(0)
-  .max(23)
-  .step(0.1)
-  .onChange(() => {
-    directionalLight.shadow.camera.updateProjectionMatrix()
-  })
-gui.add(directionalLight.shadow.camera, 'top')
-  .min(-10)
-  .max(10)
-  .step(0.1)
-  .onChange(() => {
-    directionalLight.shadow.camera.updateProjectionMatrix()
-  })
-gui.add(directionalLight.shadow.camera, 'left')
-  .min(-10)
-  .max(10)
-  .step(0.1)
-  .onChange(() => {
-    directionalLight.shadow.camera.updateProjectionMatrix()
-  })
-gui.add(directionalLight.shadow.camera, 'right')
-  .min(-10)
-  .max(10)
-  .step(0.1)
-  .onChange(() => {
-    directionalLight.shadow.camera.updateProjectionMatrix()
-  })
-gui.add(directionalLight.shadow.camera, 'bottom')
-  .min(-10)
   .max(10)
   .step(0.1)
   .onChange(() => {
