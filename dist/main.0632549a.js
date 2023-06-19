@@ -45812,6 +45812,8 @@ var dat = _interopRequireWildcard(require("dat.gui"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+// 点光源
+
 // 导入轨道控制器
 
 // 掌握gsap 强大的动画库（商用需付费）
@@ -45863,7 +45865,7 @@ sphere.castShadow = true;
 scene.add(sphere);
 
 // 创建一个平面
-var planeGeometry = new THREE.PlaneGeometry(10, 10, 10, 10);
+var planeGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10);
 var plane = new THREE.Mesh(planeGeometry, material);
 plane.position.set(0, -1, 0);
 plane.rotation.x = -Math.PI / 2;
@@ -45873,51 +45875,45 @@ plane.receiveShadow = true;
 scene.add(plane);
 
 // 添加灯光
+// 点光源（类似灯泡）
+var pointLight = new THREE.PointLight(0xffffff, 1);
+pointLight.shadow.mapSize.set(1024, 1024);
+pointLight.angle = Math.PI / 6;
+pointLight.position.set(2, 0, 2);
+pointLight.target = sphere;
+// 开启阴影
+pointLight.castShadow = true;
+scene.add(pointLight);
+// 辅助线
+var pointLightHelper = new THREE.PointLightHelper(pointLight);
+// scene.add(pointLightHelper)
+
+gui.addColor(pointLight, 'color');
+gui.add(pointLight.position, 'x').min(-30).max(30).step(0.1).name('光源X坐标');
+gui.add(pointLight.position, 'y').min(-30).max(30).step(0.1).name('光源Y坐标');
+gui.add(pointLight.position, 'z').min(-30).max(30).step(0.1).name('光源Z坐标');
+gui.add(sphere.position, 'x').min(-50).max(50).step(0.1);
+gui.add(sphere.position, 'y').min(-50).max(50).step(0.1);
+gui.add(sphere.position, 'z').min(-50).max(50).step(0.1);
+gui.add(pointLight, 'distance').min(-2).max(30).step(0.01);
+gui.add(pointLight, 'decay').min(-1).max(20).step(0.01);
+
+// 创建一个发光的球
+var ball = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 20), new THREE.MeshBasicMaterial({
+  color: 0xff0000
+}));
+ball.position.set(-2, 2, 2);
+ball.add(pointLight);
+scene.add(ball);
+gui.add(ball.position, 'x').min(-30).max(30).step(0.1).name('光球x坐标');
+gui.add(ball.position, 'y').min(-30).max(30).step(0.1).name('光球y坐标');
+gui.add(ball.position, 'z').min(-30).max(30).step(0.1).name('光球Z坐标');
+
 // 环境光
 // 第二个参数时灯光强度，默认为1
 var light = new THREE.AmbientLight(0xffffff, 0.05);
+// const light = new THREE.Light(0xffffff, 1)
 scene.add(light);
-// 直线光
-var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(10, 10, 10);
-directionalLight.castShadow = true;
-
-// 设置阴贴图的模糊度
-directionalLight.shadow.radius = 18;
-// 设置阴影贴图的分辨率（默认为512*512）
-directionalLight.shadow.mapSize.set(4096, 4096);
-
-// 设置平行光投射相机的属性（切记这必须在添加辅助线之前完成）
-directionalLight.shadow.camera.near = 0.5;
-directionalLight.shadow.camera.far = 200;
-directionalLight.shadow.camera.top = 5;
-directionalLight.shadow.camera.bottom = -5;
-directionalLight.shadow.camera.left = -5;
-directionalLight.shadow.camera.right = 5;
-scene.add(directionalLight);
-
-// 平行光光源辅助线
-var SpotLightHelper = new THREE.DirectionalLightHelper(directionalLight);
-scene.add(SpotLightHelper);
-gui.add(directionalLight.shadow.camera, 'near').min(0).max(20).step(0.1).onChange(function () {
-  directionalLight.shadow.camera.updateProjectionMatrix();
-  SpotLightHelper.update();
-});
-gui.add(directionalLight.shadow.camera, 'far').min(0).max(23).step(0.1).onChange(function () {
-  directionalLight.shadow.camera.updateProjectionMatrix();
-});
-gui.add(directionalLight.shadow.camera, 'top').min(-10).max(10).step(0.1).onChange(function () {
-  directionalLight.shadow.camera.updateProjectionMatrix();
-});
-gui.add(directionalLight.shadow.camera, 'left').min(-10).max(10).step(0.1).onChange(function () {
-  directionalLight.shadow.camera.updateProjectionMatrix();
-});
-gui.add(directionalLight.shadow.camera, 'right').min(-10).max(10).step(0.1).onChange(function () {
-  directionalLight.shadow.camera.updateProjectionMatrix();
-});
-gui.add(directionalLight.shadow.camera, 'bottom').min(-10).max(10).step(0.1).onChange(function () {
-  directionalLight.shadow.camera.updateProjectionMatrix();
-});
 
 // 创建渲染器
 var renderer = new THREE.WebGLRenderer({
@@ -45927,6 +45923,8 @@ var renderer = new THREE.WebGLRenderer({
 renderer.shadowMap.enabled = true;
 // 设置渲染的尺寸大小
 renderer.setSize(window.innerWidth, window.innerHeight);
+// 开启后可设置随着离光源的距离增加光照如何减弱。点光源和聚光灯等灯光受其影响。
+// renderer.physicallyCorrectLights = true
 // 将webgl渲染的canvas内容添加到body
 document.body.appendChild(renderer.domElement);
 
@@ -45995,7 +45993,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54026" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65525" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

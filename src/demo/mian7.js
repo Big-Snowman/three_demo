@@ -1,6 +1,3 @@
-
-// 点光源
-
 import * as THREE from 'three'
 // 导入轨道控制器
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -63,41 +60,39 @@ plane.rotation.x = -Math.PI / 2;
 
 // 接收阴影
 plane.receiveShadow = true
+
 scene.add(plane)
 
 // 添加灯光
-// 点光源（类似灯泡）
-const pointLight = new THREE.PointLight(0xffffff, 1)
-pointLight.shadow.mapSize.set(1024, 1024)
-pointLight.angle = Math.PI / 6
+// 环境光
+// 第二个参数时灯光强度，默认为1
+const light = new THREE.AmbientLight(0xffffff, 0.05)
+// const light = new THREE.Light(0xffffff, 1)
+// scene.add(light)
+// 直线光
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
+directionalLight.position.set(10, 10, 10)
+directionalLight.castShadow = true
 
+// 设置阴贴图的模糊度
+directionalLight.shadow.radius = 18
+// 设置阴影贴图的分辨率（默认为512*512）
+directionalLight.shadow.mapSize.set(4096, 4096)
 
-pointLight.position.set( 2, 0, 2);
-pointLight.target = sphere
-// 开启阴影
-pointLight.castShadow = true
-scene.add(pointLight)
-// 辅助线
-const pointLightHelper = new THREE.PointLightHelper(pointLight)
-// scene.add(pointLightHelper)
+// 设置平行光投射相机的属性（切记这必须在添加辅助线之前完成）
+directionalLight.shadow.camera.near = 0.5
+directionalLight.shadow.camera.far = 200
+directionalLight.shadow.camera.top = 5
+directionalLight.shadow.camera.bottom = -5
+directionalLight.shadow.camera.left = -5
+directionalLight.shadow.camera.right = 5
 
-gui.addColor(pointLight, 'color')
+scene.add(directionalLight)
 
-gui.add(pointLight.position, 'x')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光源X坐标')
-gui.add(pointLight.position, 'y')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光源Y坐标')
-gui.add(pointLight.position, 'z')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光源Z坐标')
+// 平行光光源辅助线
+const SpotLightHelper = new THREE.DirectionalLightHelper(directionalLight);
+scene.add(SpotLightHelper)
+
 
 gui.add(sphere.position, 'x')
   .min(-50)
@@ -112,48 +107,49 @@ gui.add(sphere.position, 'z')
   .max(50)
   .step(0.1)
 
-gui.add(pointLight, 'distance')
-  .min(-2)
-  .max(30)
-  .step(0.01)
-gui.add(pointLight, 'decay')
-  .min(-1)
+gui.add(directionalLight.shadow.camera, 'near')
+  .min(0)
   .max(20)
-  .step(0.01)
-
-// 创建一个发光的球
-const ball = new THREE.Mesh(
-  new THREE.SphereGeometry(0.1, 20, 20),
-  new THREE.MeshBasicMaterial({ color: 0xff0000 })
-)
-ball.position.set(-2, 2, 2)
-
-ball.add(pointLight)
-scene.add(ball)
-
-
-gui.add(ball.position, 'x')
-  .min(-30)
-  .max(30)
   .step(0.1)
-  .name('光球x坐标')
-gui.add(ball.position, 'y')
-  .min(-30)
-  .max(30)
+  .onChange(() => {
+    directionalLight.shadow.camera.sphere()
+    SpotLightHelper.update()
+  })
+gui.add(directionalLight.shadow.camera, 'far')
+  .min(0)
+  .max(23)
   .step(0.1)
-  .name('光球y坐标')
-gui.add(ball.position, 'z')
-  .min(-30)
-  .max(30)
+  .onChange(() => {
+    directionalLight.shadow.camera.updateProjectionMatrix()
+  })
+gui.add(directionalLight.shadow.camera, 'top')
+  .min(-10)
+  .max(10)
   .step(0.1)
-  .name('光球Z坐标')
-
-// 环境光
-// 第二个参数时灯光强度，默认为1
-const light = new THREE.AmbientLight(0xffffff, 0.05)
-// const light = new THREE.Light(0xffffff, 1)
-scene.add(light)
-
+  .onChange(() => {
+    directionalLight.shadow.camera.updateProjectionMatrix()
+  })
+gui.add(directionalLight.shadow.camera, 'left')
+  .min(-10)
+  .max(10)
+  .step(0.1)
+  .onChange(() => {
+    directionalLight.shadow.camera.updateProjectionMatrix()
+  })
+gui.add(directionalLight.shadow.camera, 'right')
+  .min(-10)
+  .max(10)
+  .step(0.1)
+  .onChange(() => {
+    directionalLight.shadow.camera.updateProjectionMatrix()
+  })
+gui.add(directionalLight.shadow.camera, 'bottom')
+  .min(-10)
+  .max(10)
+  .step(0.1)
+  .onChange(() => {
+    directionalLight.shadow.camera.updateProjectionMatrix()
+  })
 
 // 创建渲染器
 const renderer = new THREE.WebGLRenderer({antialias: true})
@@ -161,8 +157,6 @@ const renderer = new THREE.WebGLRenderer({antialias: true})
 renderer.shadowMap.enabled = true
 // 设置渲染的尺寸大小
 renderer.setSize( window.innerWidth, window.innerHeight )
-// 开启后可设置随着离光源的距离增加光照如何减弱。点光源和聚光灯等灯光受其影响。
-// renderer.physicallyCorrectLights = true
 // 将webgl渲染的canvas内容添加到body
 document.body.appendChild( renderer.domElement )
 

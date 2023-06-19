@@ -1,5 +1,5 @@
 
-// 点光源
+// 聚光灯
 
 import * as THREE from 'three'
 // 导入轨道控制器
@@ -63,41 +63,26 @@ plane.rotation.x = -Math.PI / 2;
 
 // 接收阴影
 plane.receiveShadow = true
+
 scene.add(plane)
 
 // 添加灯光
-// 点光源（类似灯泡）
-const pointLight = new THREE.PointLight(0xffffff, 1)
-pointLight.shadow.mapSize.set(1024, 1024)
-pointLight.angle = Math.PI / 6
+
+// 聚光灯
+const spotLight = new THREE.SpotLight(0xffffff, 1)
+spotLight.shadow.mapSize.set(4096, 4096)
+spotLight.shadow.radius = 10
+spotLight.angle = Math.PI / 6
 
 
-pointLight.position.set( 2, 0, 2);
-pointLight.target = sphere
+spotLight.position.set( 0, 5, 7);
+spotLight.target = sphere
 // 开启阴影
-pointLight.castShadow = true
-scene.add(pointLight)
+spotLight.castShadow = true
+scene.add(spotLight)
 // 辅助线
-const pointLightHelper = new THREE.PointLightHelper(pointLight)
-// scene.add(pointLightHelper)
-
-gui.addColor(pointLight, 'color')
-
-gui.add(pointLight.position, 'x')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光源X坐标')
-gui.add(pointLight.position, 'y')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光源Y坐标')
-gui.add(pointLight.position, 'z')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光源Z坐标')
+const spotLightHelper = new THREE.SpotLightHelper(spotLight)
+scene.add(spotLightHelper)
 
 gui.add(sphere.position, 'x')
   .min(-50)
@@ -111,42 +96,25 @@ gui.add(sphere.position, 'z')
   .min(-50)
   .max(50)
   .step(0.1)
-
-gui.add(pointLight, 'distance')
+gui.add(spotLight, 'angle')
+  .min(0)
+  .max(Math.PI)
+  .step(0.01)
+  .onChange(() => {
+    spotLightHelper.update()
+  })
+gui.add(spotLight, 'penumbra')
+  .min(0)
+  .max(1)
+  .step(0.01)
+gui.add(spotLight, 'decay')
   .min(-2)
-  .max(30)
+  .max(3)
   .step(0.01)
-gui.add(pointLight, 'decay')
-  .min(-1)
-  .max(20)
+gui.add(spotLight, 'power')
+  .min(-5)
+  .max(5)
   .step(0.01)
-
-// 创建一个发光的球
-const ball = new THREE.Mesh(
-  new THREE.SphereGeometry(0.1, 20, 20),
-  new THREE.MeshBasicMaterial({ color: 0xff0000 })
-)
-ball.position.set(-2, 2, 2)
-
-ball.add(pointLight)
-scene.add(ball)
-
-
-gui.add(ball.position, 'x')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光球x坐标')
-gui.add(ball.position, 'y')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光球y坐标')
-gui.add(ball.position, 'z')
-  .min(-30)
-  .max(30)
-  .step(0.1)
-  .name('光球Z坐标')
 
 // 环境光
 // 第二个参数时灯光强度，默认为1
@@ -162,7 +130,7 @@ renderer.shadowMap.enabled = true
 // 设置渲染的尺寸大小
 renderer.setSize( window.innerWidth, window.innerHeight )
 // 开启后可设置随着离光源的距离增加光照如何减弱。点光源和聚光灯等灯光受其影响。
-// renderer.physicallyCorrectLights = true
+renderer.physicallyCorrectLights = true
 // 将webgl渲染的canvas内容添加到body
 document.body.appendChild( renderer.domElement )
 
