@@ -45858,7 +45858,10 @@ var cubeTextureLoader = new THREE.CubeTextureLoader(manager);
 // 添加一个球
 var sphereGeometry = new THREE.SphereGeometry(1, 50, 50);
 var material = new THREE.MeshStandardMaterial();
-var sphere = new THREE.Mesh(sphereGeometry, material);
+var sphereMaterial = new THREE.MeshStandardMaterial();
+sphereMaterial.metalness = 1;
+sphereMaterial.roughness = 0.2;
+var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
 // 投影阴影
 sphere.castShadow = true;
@@ -45876,10 +45879,13 @@ scene.add(plane);
 
 // 添加灯光
 // 点光源（类似灯泡）
-var pointLight = new THREE.PointLight(0xffffff, 1);
+var pointLight = new THREE.PointLight(0Xff0000, 1);
+// 设置阴影的分辨率
 pointLight.shadow.mapSize.set(1024, 1024);
-pointLight.angle = Math.PI / 6;
-pointLight.position.set(2, 0, 2);
+pointLight.angle = Math.PI / 30;
+console.log(pointLight.angle);
+
+// pointLight.position.set( 2, 0, 2);
 pointLight.target = sphere;
 // 开启阴影
 pointLight.castShadow = true;
@@ -45902,7 +45908,7 @@ gui.add(pointLight, 'decay').min(-1).max(20).step(0.01);
 var ball = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 20), new THREE.MeshBasicMaterial({
   color: 0xff0000
 }));
-ball.position.set(-2, 2, 2);
+ball.position.set(2, 1, 0);
 ball.add(pointLight);
 scene.add(ball);
 gui.add(ball.position, 'x').min(-30).max(30).step(0.1).name('光球x坐标');
@@ -45938,7 +45944,8 @@ controls.enableDamping = true;
 
 // 添加坐标轴辅助器
 var axesHelper = new THREE.AxesHelper(6);
-scene.add(axesHelper);
+// scene.add(axesHelper)
+
 window.addEventListener('dblclick', function () {
   // 双击全屏
   if (!document.fullscreenElement) {
@@ -45949,7 +45956,15 @@ window.addEventListener('dblclick', function () {
     document.exitFullscreen();
   }
 });
+
+// 设置时钟
+var clock = new THREE.Clock();
+var time;
 function render() {
+  time = clock.getElapsedTime();
+  ball.position.x = Math.sin(time) * 2;
+  ball.position.z = Math.cos(time) * 2;
+  ball.position.y = Math.sin(time) * 2 + 1;
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(render);
@@ -45993,7 +46008,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65525" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50211" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

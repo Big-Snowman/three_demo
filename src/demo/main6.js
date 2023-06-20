@@ -88,7 +88,7 @@ directionalLight.shadow.radius = 18
 // 设置阴影贴图的分辨率（默认为512*512）
 directionalLight.shadow.mapSize.set(4096, 4096)
 
-// 设置平型关投射相机的属性
+// 设置平行光投射相机的属性
 directionalLight.shadow.camera.near = 0.5
 directionalLight.shadow.camera.far = 500
 directionalLight.shadow.camera.top = 5

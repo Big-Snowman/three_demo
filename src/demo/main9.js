@@ -182,7 +182,7 @@ controls.enableDamping = true
 
 // 添加坐标轴辅助器
 const axesHelper = new THREE.AxesHelper(6)
-// scene.add(axesHelper)
+scene.add(axesHelper)
 
 window.addEventListener('dblclick', () => {
   // 双击全屏
