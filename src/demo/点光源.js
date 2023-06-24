@@ -70,7 +70,7 @@ scene.add(plane)
 
 // 添加灯光
 // 点光源（类似灯泡）
-const pointLight = new THREE.PointLight(0Xff0000, 1)
+const pointLight = new THREE.PointLight(0Xff0000, 1.2)
 // 设置阴影的分辨率
 pointLight.shadow.mapSize.set(1024, 1024)
 pointLight.angle = Math.PI / 30
@@ -182,7 +182,7 @@ controls.enableDamping = true
 
 // 添加坐标轴辅助器
 const axesHelper = new THREE.AxesHelper(6)
-scene.add(axesHelper)
+// scene.add(axesHelper)
 
 window.addEventListener('dblclick', () => {
   // 双击全屏
