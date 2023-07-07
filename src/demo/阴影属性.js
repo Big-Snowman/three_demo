@@ -66,7 +66,7 @@ scene.add(sphere)
 const planeGeometry = new THREE.PlaneGeometry(10, 10, 10, 10)
 const plane = new THREE.Mesh(planeGeometry, material)
 plane.position.set(0, -1, 0)
-plane.rotation.x = -Math.PI / 2;
+plane.rotation.x = -Math.PI / 2
 
 // 接收阴影
 plane.receiveShadow = true

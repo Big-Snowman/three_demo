@@ -1,6 +1,3 @@
-
-// 点光源
-
 import * as THREE from 'three'
 // 导入轨道控制器
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -12,7 +9,31 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 // 因为导入的这个模型压缩过，所以要导入下面这个解压的工具
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
+// 导入dat.gui (一个轻量级的UI界面控制库)
+// 可以帮助我们快速设置变量,在界面当中以UI方式修改里面的值和数据
+import * as dat from 'dat.gui'
+// 实例创建一个GUI
+const gui = new dat.GUI()
 
+const params = {
+  color: '#ffffff',
+  waterColor: '#771212',
+  scale: 1,
+  flowX: 2,
+  flowY: 2
+  // flowX: 1,
+  // flowY: 1
+};
+// gui.addColor(params, 'waterColor')
+// gui.addColor(params, 'color')
+// gui.add(params, 'scale')
+//   .min(-10)
+//   .max(20)
+//   .step(0.1)
+//   .onChange((e) => {
+//     console.log(e);
+//     console.log(params);
+//   })
 // 初始化场景
 const scene = new THREE.Scene()
 
@@ -69,6 +90,7 @@ function render() {
   renderer.render(scene, camera)
   // 控制器更新
   controls.update()
+
   // 引擎自动更新渲染器
   requestAnimationFrame(render)
 }
@@ -120,13 +142,17 @@ const water = new Water(waterGeometry, {
   //   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   // } ),
   // waterColor: 0x001e0f,
+  // waterColor: params.waterColor,
+  color: params.color,
   // waterColor: 0x0080ff,
-  color: 0xeeeeff,
+  // color: 0xeeeeff,
   // 水的流向
   flowDirection: new THREE.Vector2(1, 1),
   // 水面波纹大小
-  scale: 1
+  scale: params.scale
 })
+console.log(water);
+console.log(water.material.uniforms);
 water.position.y = 3
 water.rotation.x = -Math.PI / 2
 scene.add(water)
@@ -145,3 +171,38 @@ loader.setDRACOLoader(dracoLoader)
 loader.load('./mod/island2.glb', (gltf) => {
   scene.add(gltf.scene)
 })
+
+gui.addColor(params, 'color').onChange( function ( value ) {
+  water.material.uniforms.color.value.set( value );
+} )
+
+gui.add(params, 'scale')
+.min(-1)
+.max(1)
+.step(0.001)
+.onChange( ( value ) => {
+  water.material.uniforms.config.value.w = value;
+})
+gui.add( params, 'flowX', - 1, 1 ).step( 0.01 ).onChange( function ( value ) {
+
+  water.material.uniforms[ 'flowDirection' ].value.x = value;
+  water.material.uniforms[ 'flowDirection' ].value.normalize();
+
+} );
+gui.add( params, 'flowY', - 1, 1 ).step( 0.01 ).onChange( function ( value ) {
+
+  water.material.uniforms[ 'flowDirection' ].value.y = value;
+  water.material.uniforms[ 'flowDirection' ].value.normalize();
+
+} );
+// gui.addColor(water.material.uniforms.color, 'value')
+// gui.addColor(params, 'color')
+// gui.add(params, 'scale')
+//   .min(-10)
+//   .max(20)
+//   .step(0.1)
+//   .onChange((e) => {
+//     console.log(e);
+//     console.log(params);
+//   })
+

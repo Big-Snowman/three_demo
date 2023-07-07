@@ -38,7 +38,7 @@ const mesh = new THREE.Mesh(geometry, material)
 
 // 根据集合体和材质创建物体
 
-// 将几何体天机场景中
+// 将几何体添加场景中
 scene.add(mesh)
 
 // 创建渲染器
